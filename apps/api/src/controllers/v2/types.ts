@@ -375,7 +375,7 @@ const screenshotFormatWithOptions = z.object({
   viewport: z
     .object({
       width: z.int().positive().finite().max(7680), // 8K resolution width
-      height: z.int().positive().finite().max(4320), // 8K resolution height
+      height: z.int().positive().finite().max(4320).optional(), // 8K resolution height
     })
     .optional(),
 });
