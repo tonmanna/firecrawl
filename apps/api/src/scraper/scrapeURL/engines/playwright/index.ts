@@ -4,10 +4,12 @@ import { EngineScrapeResult } from "..";
 import { Meta } from "../..";
 import { robustFetch } from "../../lib/fetch";
 import { getInnerJson } from "@mendable/firecrawl-rs";
+import { hasFormatOfType } from "../../../../lib/format-utils";
 
 export async function scrapeURLWithPlaywright(
   meta: Meta,
 ): Promise<EngineScrapeResult> {
+  const screenshotFormat = hasFormatOfType(meta.options.formats as any, "screenshot");
   const response = await robustFetch({
     url: config.PLAYWRIGHT_MICROSERVICE_URL!,
     headers: {
@@ -21,6 +23,7 @@ export async function scrapeURLWithPlaywright(
       skip_tls_verification: meta.options.skipTlsVerification,
       screenshot: meta.options.formats.some((f: any) => typeof f === 'string' ? f === 'screenshot' : f.type === 'screenshot'),
       screenshot_full_page: meta.options.formats.some((f: any) => typeof f === 'string' ? f === 'screenshot@fullScreen' : f.type === 'screenshot@fullScreen'),
+      ...(screenshotFormat?.viewport && { viewport: screenshotFormat.viewport }),
     },
     method: "POST",
     logger: meta.logger.child("scrapeURLWithPlaywright/robustFetch"),

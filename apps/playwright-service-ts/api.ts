@@ -82,6 +82,7 @@ interface UrlModel {
   skip_tls_verification?: boolean;
   screenshot?: boolean;
   screenshot_full_page?: boolean;
+  viewport?: { width: number; height: number };
 }
 
 let browser: Browser;
@@ -101,9 +102,9 @@ const initializeBrowser = async () => {
   });
 };
 
-const createContext = async (skipTlsVerification: boolean = false) => {
+const createContext = async (skipTlsVerification: boolean = false, customViewport?: { width: number; height: number }) => {
   const userAgent = new UserAgent().toString();
-  const viewport = { width: 1280, height: 800 };
+  const viewport = customViewport ?? { width: 1280, height: 800 };
 
   const contextOptions: any = {
     userAgent,
@@ -221,7 +222,7 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 app.post('/scrape', async (req: Request, res: Response) => {
-  const { url, wait_after_load = 0, timeout = 15000, headers, check_selector, skip_tls_verification = false, screenshot = false, screenshot_full_page = false }: UrlModel = req.body;
+  const { url, wait_after_load = 0, timeout = 15000, headers, check_selector, skip_tls_verification = false, screenshot = false, screenshot_full_page = false, viewport: customViewport }: UrlModel = req.body;
 
   console.log(`================= Scrape Request =================`);
   console.log(`URL: ${url}`);
@@ -254,7 +255,7 @@ app.post('/scrape', async (req: Request, res: Response) => {
   let page: Page | null = null;
 
   try {
-    requestContext = await createContext(skip_tls_verification);
+    requestContext = await createContext(skip_tls_verification, customViewport);
     page = await requestContext.newPage();
 
     if (headers) {
