@@ -82,7 +82,7 @@ interface UrlModel {
   skip_tls_verification?: boolean;
   screenshot?: boolean;
   screenshot_full_page?: boolean;
-  viewport?: { width: number; height: number };
+  viewport?: { width?: number; height?: number; deviceScaleFactor?: number };
 }
 
 let browser: Browser;
@@ -102,7 +102,7 @@ const initializeBrowser = async () => {
   });
 };
 
-const createContext = async (skipTlsVerification: boolean = false, customViewport?: { width?: number; height?: number }) => {
+const createContext = async (skipTlsVerification: boolean = false, customViewport?: { width?: number; height?: number; deviceScaleFactor?: number }) => {
   const userAgent = new UserAgent().toString();
   const viewport = { width: customViewport?.width ?? 1280, height: customViewport?.height ?? 800 };
 
@@ -110,6 +110,7 @@ const createContext = async (skipTlsVerification: boolean = false, customViewpor
     userAgent,
     viewport,
     ignoreHTTPSErrors: skipTlsVerification,
+    ...(customViewport?.deviceScaleFactor && { deviceScaleFactor: customViewport.deviceScaleFactor }),
   };
 
   if (PROXY_SERVER && PROXY_USERNAME && PROXY_PASSWORD) {
